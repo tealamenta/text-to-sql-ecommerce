@@ -1,0 +1,62 @@
+[
+  {
+    "question": "Combien de commandes au total ?",
+    "sql": "SELECT COUNT(*) as total FROM orders",
+    "difficulty": "simple"
+  },
+  {
+    "question": "Combien de clients diff\u00e9rents ?",
+    "sql": "SELECT COUNT(DISTINCT customer_id) as total FROM customers",
+    "difficulty": "simple"
+  },
+  {
+    "question": "Combien de commandes livr\u00e9es ?",
+    "sql": "SELECT COUNT(*) as total FROM orders WHERE order_status = 'delivered'",
+    "difficulty": "simple"
+  },
+  {
+    "question": "Quel est le nombre de produits dans le catalogue ?",
+    "sql": "SELECT COUNT(*) as total FROM products",
+    "difficulty": "simple"
+  },
+  {
+    "question": "Quelles sont les 5 villes avec le plus de clients ?",
+    "sql": "SELECT customer_city, COUNT(*) as num_customers \n                  FROM customers \n                  GROUP BY customer_city \n                  ORDER BY num_customers DESC \n                  LIMIT 5",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Quel est le revenue total par cat\u00e9gorie de produit ?",
+    "sql": "SELECT p.product_category, SUM(oi.price) as revenue\n                  FROM order_items oi\n                  JOIN products p ON oi.product_id = p.product_id\n                  GROUP BY p.product_category\n                  ORDER BY revenue DESC",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Quelle est la note moyenne par cat\u00e9gorie de produit ?",
+    "sql": "SELECT p.product_category, ROUND(AVG(r.review_score), 2) as avg_score\n                  FROM reviews r\n                  JOIN orders o ON r.order_id = o.order_id\n                  JOIN order_items oi ON o.order_id = oi.order_id\n                  JOIN products p ON oi.product_id = p.product_id\n                  GROUP BY p.product_category\n                  ORDER BY avg_score DESC",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Combien de commandes par m\u00e9thode de paiement ?",
+    "sql": "SELECT payment_type, COUNT(DISTINCT order_id) as num_orders\n                  FROM payments\n                  GROUP BY payment_type\n                  ORDER BY num_orders DESC",
+    "difficulty": "medium"
+  },
+  {
+    "question": "Quels clients ont pass\u00e9 plus de 2 commandes ?",
+    "sql": "SELECT c.customer_id, c.customer_city, COUNT(o.order_id) as num_orders\n                  FROM customers c\n                  JOIN orders o ON c.customer_id = o.customer_id\n                  GROUP BY c.customer_id, c.customer_city\n                  HAVING COUNT(o.order_id) > 2\n                  ORDER BY num_orders DESC",
+    "difficulty": "complex"
+  },
+  {
+    "question": "Quel est le panier moyen par ville ?",
+    "sql": "SELECT c.customer_city, ROUND(AVG(oi.price), 2) as avg_basket\n                  FROM customers c\n                  JOIN orders o ON c.customer_id = o.customer_id\n                  JOIN order_items oi ON o.order_id = oi.order_id\n                  GROUP BY c.customer_city\n                  ORDER BY avg_basket DESC\n                  LIMIT 10",
+    "difficulty": "complex"
+  },
+  {
+    "question": "Quels produits ont une note moyenne inf\u00e9rieure \u00e0 3 ?",
+    "sql": "SELECT p.product_id, p.product_category, ROUND(AVG(r.review_score), 2) as avg_score\n                  FROM products p\n                  JOIN order_items oi ON p.product_id = oi.product_id\n                  JOIN reviews r ON oi.order_id = r.order_id\n                  GROUP BY p.product_id, p.product_category\n                  HAVING AVG(r.review_score) < 3\n                  ORDER BY avg_score ASC",
+    "difficulty": "complex"
+  },
+  {
+    "question": "Quel est le d\u00e9lai moyen de livraison par \u00e9tat ?",
+    "sql": "SELECT c.customer_state,\n                         ROUND(AVG(julianday(o.order_delivered_timestamp) - \n                               julianday(o.order_purchase_timestamp)), 1) as avg_delivery_days\n                  FROM customers c\n                  JOIN orders o ON c.customer_id = o.customer_id\n                  WHERE o.order_delivered_timestamp IS NOT NULL\n                  GROUP BY c.customer_state\n                  ORDER BY avg_delivery_days ASC",
+    "difficulty": "complex"
+  }
+]

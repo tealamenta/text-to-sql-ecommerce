@@ -1,0 +1,28 @@
+{
+  "model": "mistral",
+  "prompt_type": "improved (enriched schema + SQLite rules)",
+  "total_questions": 12,
+  "metrics": {
+    "execution_success": 0.5833333333333334,
+    "execution_accuracy": 0.0
+  },
+  "by_difficulty": {
+    "simple": {
+      "total": 4,
+      "execution_accuracy": 0.0
+    },
+    "medium": {
+      "total": 4,
+      "execution_accuracy": 0.0
+    },
+    "complex": {
+      "total": 4,
+      "execution_accuracy": 0.0
+    }
+  },
+  "comparison": {
+    "baseline_ex": 0.25,
+    "improved_ex": 0.0,
+    "improvement": -0.25
+  }
+}

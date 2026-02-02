@@ -1,0 +1,149 @@
+{
+  "model": "mistral",
+  "prompt_type": "zero-shot",
+  "total_questions": 12,
+  "metrics": {
+    "execution_success": 0.75,
+    "execution_accuracy": 0.25,
+    "exact_match": 0.0
+  },
+  "by_difficulty": {
+    "simple": {
+      "total": 4,
+      "execution_accuracy": 0.5,
+      "exact_match": 0.0
+    },
+    "medium": {
+      "total": 4,
+      "execution_accuracy": 0.25,
+      "exact_match": 0.0
+    },
+    "complex": {
+      "total": 4,
+      "execution_accuracy": 0.0,
+      "exact_match": 0.0
+    }
+  },
+  "details": [
+    {
+      "question": "Combien de commandes au total ?",
+      "difficulty": "simple",
+      "expected_sql": "SELECT COUNT(*) as total FROM orders",
+      "generated_sql": "SELECT COUNT(DISTINCT order_id) FROM orders;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": true,
+      "error": null
+    },
+    {
+      "question": "Combien de clients diff\u00e9rents ?",
+      "difficulty": "simple",
+      "expected_sql": "SELECT COUNT(DISTINCT customer_id) as total FROM customers",
+      "generated_sql": "SELECT DISTINCT customer_id FROM customers;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": null
+    },
+    {
+      "question": "Combien de commandes livr\u00e9es ?",
+      "difficulty": "simple",
+      "expected_sql": "SELECT COUNT(*) as total FROM orders WHERE order_status = 'delivered'",
+      "generated_sql": "SELECT COUNT(DISTINCT orders.order_id) FROM orders INNER JOIN order_items ON orders.order_id = order_items.order_id INNER JOIN payments ON orders.order_id = payments.order_id WHERE orders.order_delivered_timestamp IS NOT NULL;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": null
+    },
+    {
+      "question": "Quel est le nombre de produits dans le catalogue ?",
+      "difficulty": "simple",
+      "expected_sql": "SELECT COUNT(*) as total FROM products",
+      "generated_sql": "SELECT COUNT(DISTINCT product_id) FROM products;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": true,
+      "error": null
+    },
+    {
+      "question": "Quelles sont les 5 villes avec le plus de clients ?",
+      "difficulty": "medium",
+      "expected_sql": "SELECT customer_city, COUNT(*) as num_customers \n                  FROM customers \n                  GROUP BY customer_city \n                  ORDER BY num_customers DESC \n                  LIMIT 5",
+      "generated_sql": "SELECT customer_city, COUNT(customer_id) as number_of_customers\nFROM customers\nJOIN orders ON customers.customer_id = orders.customer_id\nGROUP BY customer_city\nORDER BY number_of_customers DESC\nLIMIT 5;",
+      "execution_success": false,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": "Execution failed on sql 'SELECT customer_city, COUNT(customer_id) as number_of_customers\nFROM customers\nJOIN orders ON customers.customer_id = orders.customer_id\nGROUP BY customer_city\nORDER BY number_of_customers DESC\nLIMIT 5;': ambiguous column name: customer_id"
+    },
+    {
+      "question": "Quel est le revenue total par cat\u00e9gorie de produit ?",
+      "difficulty": "medium",
+      "expected_sql": "SELECT p.product_category, SUM(oi.price) as revenue\n                  FROM order_items oi\n                  JOIN products p ON oi.product_id = p.product_id\n                  GROUP BY p.product_category\n                  ORDER BY revenue DESC",
+      "generated_sql": "SELECT product_category, SUM(price) as total_revenue\nFROM order_items\nJOIN products ON order_items.product_id = products.product_id\nGROUP BY product_category;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": true,
+      "error": null
+    },
+    {
+      "question": "Quelle est la note moyenne par cat\u00e9gorie de produit ?",
+      "difficulty": "medium",
+      "expected_sql": "SELECT p.product_category, ROUND(AVG(r.review_score), 2) as avg_score\n                  FROM reviews r\n                  JOIN orders o ON r.order_id = o.order_id\n                  JOIN order_items oi ON o.order_id = oi.order_id\n                  JOIN products p ON oi.product_id = p.product_id\n                  GROUP BY p.product_category\n                  ORDER BY avg_score DESC",
+      "generated_sql": "SELECT product_category, AVG(reviews.review_score) as average_score\nFROM reviews\nJOIN order_items ON reviews.order_id = order_items.order_id\nJOIN products ON order_items.product_id = products.product_id\nGROUP BY product_category;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": null
+    },
+    {
+      "question": "Combien de commandes par m\u00e9thode de paiement ?",
+      "difficulty": "medium",
+      "expected_sql": "SELECT payment_type, COUNT(DISTINCT order_id) as num_orders\n                  FROM payments\n                  GROUP BY payment_type\n                  ORDER BY num_orders DESC",
+      "generated_sql": "SELECT COUNT(DISTINCT order_id) as number_of_orders, payment_type\nFROM payments\nGROUP BY payment_type;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": null
+    },
+    {
+      "question": "Quels clients ont pass\u00e9 plus de 2 commandes ?",
+      "difficulty": "complex",
+      "expected_sql": "SELECT c.customer_id, c.customer_city, COUNT(o.order_id) as num_orders\n                  FROM customers c\n                  JOIN orders o ON c.customer_id = o.customer_id\n                  GROUP BY c.customer_id, c.customer_city\n                  HAVING COUNT(o.order_id) > 2\n                  ORDER BY num_orders DESC",
+      "generated_sql": "SELECT customer_id\nFROM orders\nGROUP BY customer_id\nHAVING COUNT(DISTINCT order_id) > 2;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": null
+    },
+    {
+      "question": "Quel est le panier moyen par ville ?",
+      "difficulty": "complex",
+      "expected_sql": "SELECT c.customer_city, ROUND(AVG(oi.price), 2) as avg_basket\n                  FROM customers c\n                  JOIN orders o ON c.customer_id = o.customer_id\n                  JOIN order_items oi ON o.order_id = oi.order_id\n                  GROUP BY c.customer_city\n                  ORDER BY avg_basket DESC\n                  LIMIT 10",
+      "generated_sql": "SELECT customer_city, AVG(total_price) as average_cart\nFROM (\n  SELECT o.customer_id, SUM(oi.price + oi.freight_value) as total_price\n  FROM orders o\n  JOIN order_items oi ON o.order_id = oi.order_id\n  GROUP BY o.customer_id, o.customer_city\n) as carts\nGROUP BY customer_city;",
+      "execution_success": false,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": "Execution failed on sql 'SELECT customer_city, AVG(total_price) as average_cart\nFROM (\n  SELECT o.customer_id, SUM(oi.price + oi.freight_value) as total_price\n  FROM orders o\n  JOIN order_items oi ON o.order_id = oi.order_id\n  GROUP BY o.customer_id, o.customer_city\n) as carts\nGROUP BY customer_city;': no such column: o.customer_city"
+    },
+    {
+      "question": "Quels produits ont une note moyenne inf\u00e9rieure \u00e0 3 ?",
+      "difficulty": "complex",
+      "expected_sql": "SELECT p.product_id, p.product_category, ROUND(AVG(r.review_score), 2) as avg_score\n                  FROM products p\n                  JOIN order_items oi ON p.product_id = oi.product_id\n                  JOIN reviews r ON oi.order_id = r.order_id\n                  GROUP BY p.product_id, p.product_category\n                  HAVING AVG(r.review_score) < 3\n                  ORDER BY avg_score ASC",
+      "generated_sql": "SELECT product_id\nFROM order_items\nJOIN reviews ON order_items.order_id = reviews.order_id\nGROUP BY product_id\nHAVING AVG(reviews.review_score) < 3;",
+      "execution_success": true,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": null
+    },
+    {
+      "question": "Quel est le d\u00e9lai moyen de livraison par \u00e9tat ?",
+      "difficulty": "complex",
+      "expected_sql": "SELECT c.customer_state,\n                         ROUND(AVG(julianday(o.order_delivered_timestamp) - \n                               julianday(o.order_purchase_timestamp)), 1) as avg_delivery_days\n                  FROM customers c\n                  JOIN orders o ON c.customer_id = o.customer_id\n                  WHERE o.order_delivered_timestamp IS NOT NULL\n                  GROUP BY c.customer_state\n                  ORDER BY avg_delivery_days ASC",
+      "generated_sql": "SELECT customer_state, AVG(DATEDIFF('day', order_purchase_timestamp, order_delivered_timestamp)) as average_delivery_delay\nFROM orders\nJOIN customers ON orders.customer_id = customers.customer_id\nGROUP BY customer_state;",
+      "execution_success": false,
+      "exact_match": false,
+      "execution_accuracy": false,
+      "error": "Execution failed on sql 'SELECT customer_state, AVG(DATEDIFF('day', order_purchase_timestamp, order_delivered_timestamp)) as average_delivery_delay\nFROM orders\nJOIN customers ON orders.customer_id = customers.customer_id\nGROUP BY customer_state;': no such function: DATEDIFF"
+    }
+  ]
+}

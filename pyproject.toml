@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "text-to-sql-ecommerce"
+version = "1.0.0"
+description = "Text-to-SQL system for e-commerce analytics"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.0.0",
+    "requests>=2.31.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
